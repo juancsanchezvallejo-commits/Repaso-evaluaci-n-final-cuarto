@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ciudad Constitución — Repaso de Sociales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE3CB;
+    --paper-deep:#E2D6B6;
+    --card:#F8F2E1;
+    --ink:#1E2A3C;
+    --ink-soft:#3F4F63;
+    --teal:#2F5D50;
+    --teal-deep:#20423A;
+    --gold:#D3A237;
+    --gold-deep:#B4831F;
+    --brick:#9C4A2E;
+    --brick-deep:#7C3A22;
+    --good:#3C7A4E;
+    --bad:#B24435;
+    --radius-lg:22px;
+    --radius-sm:10px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 0%, #F3E9CE 0%, transparent 45%),
+      radial-gradient(circle at 90% 10%, #E8DCB9 0%, transparent 40%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Nunito Sans', sans-serif;
+    line-height:1.5;
+  }
+  h1,h2,h3,.station-title{
+    font-family:'Zilla Slab', serif;
+    color:var(--ink);
+    margin:0;
+  }
+  button{font-family:inherit;}
+  :focus-visible{outline:3px solid var(--gold-deep); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ---------- Header ---------- */
+  .hero{
+    padding:38px 20px 26px;
+    text-align:center;
+    border-bottom:3px solid var(--teal-deep);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0) 60%);
+  }
+  .hero-inner{max-width:720px; margin:0 auto;}
+  .hero h1{font-size:clamp(2rem, 5vw, 2.9rem); font-weight:700; letter-spacing:0.2px;}
+  .hero .subtitle{
+    max-width:60ch; margin:12px auto 0; color:var(--ink-soft); font-size:1.02rem;
+  }
+
+  .passport{
+    margin:22px auto 0;
+    max-width:520px;
+    background:var(--card);
+    border:2px solid var(--teal-deep);
+    border-radius:999px;
+    padding:10px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    box-shadow:0 3px 0 rgba(30,42,60,0.12);
+  }
+  .passport-label{font-size:0.82rem; color:var(--ink-soft); font-weight:700; white-space:nowrap;}
+  .stamps{display:flex; gap:7px;}
+  .stamp{
+    width:26px; height:26px; border-radius:50%;
+    border:2px solid var(--brick);
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.75rem; color:var(--brick); background:transparent;
+    transition:all .25s ease;
+  }
+  .stamp.done{
+    background:var(--brick); color:#fff; border-color:var(--brick-deep);
+    transform:scale(1.06);
+  }
+
+  main{max-width:920px; margin:0 auto; padding:34px 18px 60px;}
+  .hidden{display:none !important;}
+
+  /* ---------- Map / board ---------- */
+  .board-intro{text-align:center; margin-bottom:26px;}
+  .board-intro p{color:var(--ink-soft); max-width:56ch; margin:6px auto 0;}
+  .board{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    padding:10px 0 10px 0;
+  }
+  .board::before{
+    content:"";
+    position:absolute;
+    top:20px; bottom:20px; left:50%;
+    width:0;
+    border-left:4px dashed var(--teal);
+    opacity:0.55;
+    transform:translateX(-50%);
+  }
+  .station{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    width:min(560px, 92%);
+    margin:14px 0;
+    padding:14px 16px;
+    background:var(--card);
+    border:2px solid var(--teal-deep);
+    border-radius:var(--radius-lg);
+    box-shadow:0 4px 0 rgba(32,66,58,0.18);
+    cursor:pointer;
+    text-align:left;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .station:hover, .station:focus-visible{
+    transform:translateY(-3px);
+    box-shadow:0 7px 0 rgba(32,66,58,0.2);
+  }
+  .station:nth-child(odd){align-self:flex-start; margin-left:2%;}
+  .station:nth-child(even){align-self:flex-end; margin-right:2%;}
+  .station-icon{
+    flex:0 0 56px; width:56px; height:56px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--paper-deep); border-radius:14px; border:2px solid var(--teal);
+  }
+  .station-icon svg{width:32px; height:32px;}
+  .station-text{flex:1; min-width:0;}
+  .station-title{font-size:1.18rem; font-weight:700;}
+  .station-desc{color:var(--ink-soft); font-size:0.92rem; margin-top:2px;}
+  .station-mark{
+    flex:0 0 auto; font-size:1.3rem; width:30px; text-align:center; color:var(--good);
+  }
+
+  /* ---------- Station view ---------- */
+  .station-view{max-width:720px; margin:0 auto;}
+  .back-btn{
+    background:none; border:2px solid var(--teal-deep); color:var(--teal-deep);
+    padding:8px 16px; border-radius:999px; font-weight:700; cursor:pointer;
+    margin-bottom:20px;
+  }
+  .back-btn:hover{background:var(--teal-deep); color:#fff;}
+  .panel{
+    background:var(--card); border:2px solid var(--teal-deep); border-radius:var(--radius-lg);
+    padding:26px 24px; box-shadow:0 5px 0 rgba(32,66,58,0.15);
+  }
+  .panel h2{font-size:1.5rem; margin-bottom:6px;}
+  .panel .kicker{color:var(--brick); font-weight:700; font-size:0.86rem; margin-bottom:4px;}
+  .panel .instructions{color:var(--ink-soft); margin:8px 0 22px; font-size:0.96rem;}
+  .progress-line{font-size:0.85rem; color:var(--ink-soft); margin-bottom:14px;}
+
+  /* quiz */
+  .case-box{
+    background:var(--paper-deep); border-left:5px solid var(--brick);
+    padding:14px 16px; border-radius:var(--radius-sm); margin-bottom:16px; font-size:0.96rem;
+  }
+  .question-text{font-weight:700; font-size:1.08rem; margin-bottom:14px;}
+  .options{display:flex; flex-direction:column; gap:10px;}
+  .option-btn{
+    text-align:left; padding:12px 14px; border-radius:var(--radius-sm);
+    border:2px solid var(--teal); background:#fff; cursor:pointer; font-size:0.96rem;
+    transition:all .15s ease;
+  }
+  .option-btn:hover:not(:disabled){background:var(--paper-deep);}
+  .option-btn.correct{background:var(--good); border-color:var(--good); color:#fff;}
+  .option-btn.incorrect{background:var(--bad); border-color:var(--bad); color:#fff;}
+  .option-btn:disabled{cursor:default;}
+  .explain{
+    margin-top:14px; padding:12px 14px; border-radius:var(--radius-sm);
+    background:#fff; border:1px dashed var(--teal); font-size:0.92rem;
+  }
+  .next-btn, .primary-btn{
+    margin-top:18px; background:var(--teal-deep); color:#fff; border:none;
+    padding:11px 22px; border-radius:999px; font-weight:700; cursor:pointer; font-size:0.95rem;
+  }
+  .next-btn:hover, .primary-btn:hover{background:var(--teal);}
+  .result-box{text-align:center; padding:20px 10px;}
+  .result-score{font-size:2.4rem; font-weight:700; color:var(--brick); font-family:'Zilla Slab',serif;}
+
+  /* matching */
+  .match-wrap{display:flex; gap:18px; flex-wrap:wrap;}
+  .match-col{flex:1 1 240px; display:flex; flex-direction:column; gap:10px;}
+  .match-item{
+    padding:12px 14px; border-radius:var(--radius-sm); border:2px solid var(--teal);
+    background:#fff; cursor:pointer; font-size:0.92rem; transition:all .15s ease;
+  }
+  .match-item.selected{border-color:var(--gold-deep); background:#FBEFCB;}
+  .match-item.matched{background:var(--good); color:#fff; border-color:var(--good); cursor:default;}
+  .match-item.wrong{animation:shake .3s;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+  /* ordering */
+  .order-pool{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;}
+  .order-chip{
+    padding:10px 14px; border-radius:999px; border:2px solid var(--teal);
+    background:#fff; cursor:pointer; font-size:0.9rem;
+  }
+  .order-chip:disabled{opacity:0.35; cursor:default;}
+  .order-slots{display:flex; flex-direction:column; gap:8px; margin-bottom:16px;}
+  .order-slot{
+    min-height:44px; border:2px dashed var(--brick); border-radius:var(--radius-sm);
+    display:flex; align-items:center; padding:8px 14px; font-size:0.92rem; background:#fff;
+  }
+  .order-slot.filled{border-style:solid; border-color:var(--teal); background:var(--paper-deep);}
+  .order-feedback{margin-top:10px; font-weight:700;}
+
+  /* sorting */
+  .sort-bins{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px;}
+  .sort-bin{
+    flex:1 1 150px; border:2px solid var(--teal); border-radius:var(--radius-sm);
+    padding:10px; min-height:100px; background:var(--paper-deep);
+  }
+  .sort-bin h4{margin:0 0 8px; font-size:0.88rem; color:var(--teal-deep); font-family:'Zilla Slab',serif;}
+  .sort-bin .placed{
+    font-size:0.8rem; background:var(--good); color:#fff; padding:5px 8px;
+    border-radius:8px; margin-bottom:6px;
+  }
+  .sort-pool{display:flex; flex-wrap:wrap; gap:8px;}
+  .sort-chip{
+    padding:9px 12px; border-radius:var(--radius-sm); border:2px solid var(--brick);
+    background:#fff; cursor:pointer; font-size:0.88rem;
+  }
+  .sort-chip.selected{background:#FBEFCB; border-color:var(--gold-deep);}
+  .sort-chip.wrong{animation:shake .3s;}
+
+  /* flashcards */
+  .flash-wrap{text-align:center;}
+  .flash-card{
+    margin:0 auto 16px; max-width:420px; min-height:150px;
+    background:var(--paper-deep); border:2px solid var(--teal); border-radius:var(--radius-lg);
+    display:flex; align-items:center; justify-content:center; padding:22px;
+    font-size:1.02rem; cursor:pointer; box-shadow:0 4px 0 rgba(32,66,58,0.15);
+  }
+  .flash-card .back-label{color:var(--brick); font-weight:700; font-family:'Zilla Slab',serif; font-size:1.3rem;}
+  .flash-nav{display:flex; gap:10px; justify-content:center; align-items:center;}
+  .flash-nav button{
+    background:#fff; border:2px solid var(--teal-deep); border-radius:999px; padding:8px 16px;
+    cursor:pointer; font-weight:700;
+  }
+  .flash-count{color:var(--ink-soft); font-size:0.88rem;}
+
+  footer{text-align:center; padding:26px 16px; color:var(--ink-soft); font-size:0.82rem;}
+
+  @media (max-width:640px){
+    .station:nth-child(odd), .station:nth-child(even){align-self:center; margin:14px auto;}
+    .board::before{display:none;}
+    .match-wrap{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <h1>Ciudad Constitución</h1>
+    <p class="subtitle">Recorre la ciudad, entra a cada edificio y prepárate para la evaluación de Ciencias Sociales sobre gobierno, democracia, cargos públicos, control y participación ciudadana.</p>
+    <div class="passport">
+      <span class="passport-label">Tu pasaporte cívico</span>
+      <div class="stamps" id="stamps"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="mapView">
+    <div class="board-intro">
+      <h2>Mapa de la ciudad</h2>
+      <p>Elige un lugar para entrar. Puedes visitarlos en el orden que quieras y repetirlos las veces que necesites.</p>
+    </div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <section id="stationView" class="station-view hidden">
+    <button class="back-btn" id="backBtn">← Volver al mapa</button>
+    <div class="panel" id="stationContent"></div>
+  </section>
+</main>
+
+<footer>Hecho para repasar en casa antes de la evaluación · Ciencias Sociales, cuarto grado</footer>
+
+<script>
+/* ============ ICONS ============ */
+const ICONS = {
+  plaza: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 6 L42 18 H6 Z" fill="#9C4A2E"/><rect x="10" y="18" width="4" height="20" fill="#2F5D50"/><rect x="18" y="18" width="4" height="20" fill="#2F5D50"/><rect x="26" y="18" width="4" height="20" fill="#2F5D50"/><rect x="34" y="18" width="4" height="20" fill="#2F5D50"/><rect x="6" y="38" width="36" height="4" fill="#1E2A3C"/></svg>`,
+  colegio: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="18" width="32" height="22" fill="#D3A237"/><path d="M24 6 L44 18 H4 Z" fill="#9C4A2E"/><rect x="20" y="26" width="8" height="14" fill="#1E2A3C"/><rect x="12" y="22" width="5" height="5" fill="#F8F2E1"/><rect x="31" y="22" width="5" height="5" fill="#F8F2E1"/></svg>`,
+  palacio: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="20" width="36" height="20" fill="#F8F2E1" stroke="#2F5D50" stroke-width="2"/><rect x="10" y="24" width="4" height="16" fill="#2F5D50"/><rect x="18" y="24" width="4" height="16" fill="#2F5D50"/><rect x="26" y="24" width="4" height="16" fill="#2F5D50"/><rect x="34" y="24" width="4" height="16" fill="#2F5D50"/><path d="M24 6 L40 20 H8 Z" fill="#9C4A2E"/></svg>`,
+  torre: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="18" y="8" width="12" height="32" fill="#2F5D50"/><circle cx="24" cy="16" r="5" fill="#F8F2E1" stroke="#1E2A3C" stroke-width="2"/><rect x="10" y="34" width="28" height="6" fill="#1E2A3C"/><line x1="27" y1="19" x2="34" y2="26" stroke="#1E2A3C" stroke-width="3"/></svg>`,
+  casa: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 22 L24 8 L40 22 V40 H8 Z" fill="#D3A237"/><rect x="20" y="28" width="8" height="12" fill="#1E2A3C"/><circle cx="34" cy="16" r="7" fill="#9C4A2E"/><path d="M31 16 h6 M34 13 v6" stroke="#F8F2E1" stroke-width="1.5"/></svg>`,
+  final: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="4" height="30" fill="#1E2A3C"/><path d="M14 10 L34 14 L14 22 Z" fill="#9C4A2E"/><circle cx="24" cy="36" r="6" fill="#D3A237"/></svg>`
+};
+
+/* ============ DATA ============ */
+const STATIONS = [
+  {id:'plaza', title:'Plaza de la Democracia', desc:'Tipos de gobierno y valores democráticos', icon:'plaza'},
+  {id:'colegio', title:'El Colegio', desc:'Gobierno escolar: cargos y funciones', icon:'colegio'},
+  {id:'palacio', title:'Palacio de Gobierno', desc:'Cargos de elección popular', icon:'palacio'},
+  {id:'torre', title:'Torre de Control', desc:'Organismos de control del Estado', icon:'torre'},
+  {id:'casa', title:'Casa de la Participación', desc:'Mecanismos de participación ciudadana', icon:'casa'},
+  {id:'final', title:'Meta: repaso final', desc:'Un poco de todo lo aprendido en la ciudad', icon:'final'}
+];
+
+const QUIZ_PLAZA = [
+  {case:"En el curso 5B, la directora de grupo decide que todas las normas del salón se construyen entre todos los estudiantes, votando, y que la opinión de la minoría también se escucha aunque no gane.",
+   q:"¿Qué forma de gobierno describe mejor esta situación?",
+   options:["Democracia","Autoritarismo","Monarquía","Anarquía"], correct:0,
+   explain:"Cuando las decisiones se toman entre todos y se respeta a la minoría, se está aplicando la democracia."},
+  {case:"En un concurso de dibujo del colegio, los profesores tapan el nombre del autor en cada obra antes de calificarla, para que ningún estudiante reciba un trato especial por ser conocido.",
+   q:"¿Qué principio de la justicia se está aplicando al tapar los nombres?",
+   options:["La imparcialidad: juzgar sin favorecer a nadie","El favoritismo hacia los amigos del jurado","La rapidez para terminar pronto el concurso","La eliminación de las reglas del concurso"], correct:0,
+   explain:"Calificar sin saber de quién es cada trabajo evita el favoritismo: eso es actuar con imparcialidad."},
+  {case:"Un estudiante aseguró en el chat del curso que las clases del viernes se cancelaban, sin que fuera cierto, y varias familias organizaron sus planes con esa información falsa.",
+   q:"¿Qué problema para la vida en comunidad ilustra esta situación?",
+   options:["La desinformación o 'fake news'","El control fiscal","La revocatoria del mandato","El cabildo abierto"], correct:0,
+   explain:"Compartir información falsa que confunde a las personas y afecta sus decisiones es un caso de desinformación."},
+  {case:"El colegio garantiza que todos los estudiantes, sin importar si tienen más o menos recursos, reciban los mismos materiales, el mismo trato y las mismas oportunidades.",
+   q:"¿Qué principio están aplicando en el colegio?",
+   options:["El Estado Social de Derecho, porque todos son iguales","La monarquía, porque manda solo un jefe","El plebiscito, porque se pregunta al pueblo","El control disciplinario, porque se sanciona a alguien"], correct:0,
+   explain:"Tratar a todos por igual sin importar su situación es una expresión del Estado Social de Derecho."},
+  {case:"En la asamblea del salón, dos grupos proponen ideas distintas para el paseo de fin de año, y uno de los grupos empieza a gritar más fuerte para imponer su idea sin dejar hablar al otro.",
+   q:"¿Qué principio de la sana convivencia democrática se está rompiendo en esta asamblea?",
+   options:["El respeto por la palabra y las ideas de los demás","El derecho a votar en secreto","El control fiscal de los recursos","La separación de poderes"], correct:0,
+   explain:"En una discusión democrática se debe respetar la palabra del otro, no imponer las ideas gritando más fuerte."},
+  {case:"La Constitución Política de Colombia establece que todos los colombianos son iguales ante la ley y tienen los mismos derechos, sin importar su origen o su condición económica.",
+   q:"¿Qué garantiza este principio de la Constitución?",
+   options:["La igualdad de todos los ciudadanos ante la ley","Que solo los adultos mayores pueden tener derechos","Que las normas cambian cada semana","Que el poder lo tiene una sola persona"], correct:0,
+   explain:"La Constitución Política garantiza la igualdad de todos ante la ley, un pilar del Estado Social de Derecho."}
+];
+
+const MATCH_COLEGIO = [
+  {term:"Rector", def:"Dirige el colegio y organiza los permisos y recursos generales"},
+  {term:"Consejo Académico", def:"Revisa que los proyectos y actividades sirvan para aprender"},
+  {term:"Personero Estudiantil", def:"Defiende los derechos y la participación de todos los estudiantes"},
+  {term:"Contralor Estudiantil", def:"Vigila que los recursos del colegio se usen bien y no se desperdicien"},
+  {term:"Consejo de Estudiantes", def:"Representa las propuestas e ideas de los estudiantes de cada curso"}
+];
+
+const ORDER_PALACIO = [
+  {label:"Escuela — elige al Personero", level:1},
+  {label:"Municipio — elige al Alcalde", level:2},
+  {label:"Departamento — elige al Gobernador", level:3},
+  {label:"Nación — elige al Presidente y Congresistas", level:4}
+];
+
+const VF_PALACIO = [
+  {text:"El Alcalde es elegido por votación popular.", answer:true, explain:"Sí: el Alcalde es un cargo de elección popular a nivel municipal."},
+  {text:"El Gobernador gobierna por 6 años.", answer:false, explain:"Los gobernantes territoriales y nacionales gobiernan por periodos de 4 años, no 6."},
+  {text:"Ningún organismo puede revisar ni cuestionar las decisiones que toma un Alcalde.", answer:false, explain:"El Concejo Municipal sí puede controlar al Alcalde: aprueba el presupuesto y vigila su gestión."},
+  {text:"El Presidente puede gobernar sin ningún tipo de control.", answer:false, explain:"Ningún gobernante está libre de control: el Congreso y otros organismos lo vigilan."},
+  {text:"La Asamblea Departamental vigila las decisiones del Gobernador.", answer:true, explain:"Así como el Concejo controla al Alcalde, la Asamblea Departamental controla al Gobernador."}
+];
+
+const SORT_TORRE = {
+  bins:[
+    {id:'fiscal', label:'Contraloría — Control Fiscal'},
+    {id:'disciplinario', label:'Procuraduría — Control Disciplinario'},
+    {id:'ciudadano', label:'Veeduría — Control Ciudadano'}
+  ],
+  items:[
+    {text:"Revisa que el dinero destinado a construir un polideportivo municipal se haya usado correctamente.", bin:'fiscal'},
+    {text:"Verifica que no haya faltado ni un peso de los recursos entregados para comprar los computadores de una escuela.", bin:'fiscal'},
+    {text:"Investiga a una funcionaria pública por firmar un contrato sin revisar los documentos requeridos.", bin:'disciplinario'},
+    {text:"Abre una investigación a un director de hospital por no cumplir las normas al contratar personal.", bin:'disciplinario'},
+    {text:"Un grupo de estudiantes y padres de familia hace seguimiento a la construcción de la biblioteca del barrio.", bin:'ciudadano'},
+    {text:"Cualquier persona del barrio, sin ser funcionaria pública, vigila que se cumpla la pavimentación de una calle.", bin:'ciudadano'}
+  ]
+};
+
+const FLASH_CASA = [
+  {front:"Los habitantes de un municipio, cansados de que su alcalde lleve dos años sin ejecutar el plan de gobierno con el que ganó, reúnen firmas para pedir que salga antes de tiempo.", back:"Revocatoria del Mandato"},
+  {front:"Los habitantes de una vereda piden una reunión abierta con el Concejo Municipal para exponer sus ideas sobre la construcción de un nuevo puesto de salud.", back:"Cabildo Abierto"},
+  {front:"El Congreso aprueba una reforma a las pensiones, pero antes de aplicarla se convoca a los ciudadanos para que voten si la aceptan o la rechazan.", back:"Referendo"},
+  {front:"El Presidente quiere saber si la mayoría de los colombianos respalda la firma de un tratado internacional muy importante y decide preguntárselo directamente a la gente.", back:"Plebiscito"},
+  {front:"El gobierno departamental quiere conocer la opinión de los habitantes sobre construir una nueva vía antes de tomar la decisión final.", back:"Consulta Popular"}
+];
+
+const QUIZ_CASA = [
+  {case:"Un grupo de comerciantes de un municipio, inconforme con la gestión de su gobernadora, se organiza para reunir las firmas necesarias y solicitar que termine su periodo antes de tiempo.",
+   q:"¿Qué mecanismo de participación están usando?",
+   options:["Revocatoria del Mandato","Cabildo Abierto","Referendo","Consulta Popular"], correct:0,
+   explain:"Reunir firmas para que un gobernante elegido salga antes de terminar su periodo es la Revocatoria del Mandato."},
+  {case:"Los estudiantes y padres de un colegio piden un espacio público con el Concejo Municipal para exponer directamente su inquietud sobre el estado de la vía de acceso al colegio.",
+   q:"¿Qué mecanismo están usando?",
+   options:["Cabildo Abierto","Plebiscito","Revocatoria del Mandato","Referendo"], correct:0,
+   explain:"Una reunión pública y directa con el Concejo, donde la comunidad expone sus inquietudes, es un Cabildo Abierto."},
+  {case:"El gobierno nacional necesita saber si la mayoría del país apoya un cambio profundo en la forma de elegir al Congreso, antes de decidir si lo lleva a cabo.",
+   q:"¿Qué mecanismo se debe usar para consultar directamente a la gente?",
+   options:["Plebiscito","Cabildo Abierto","Consulta Popular","Control Fiscal"], correct:0,
+   explain:"Preguntar a todo el país sobre una decisión trascendental del gobierno es un Plebiscito."},
+  {case:"En un municipio, los ciudadanos votan directamente para decidir si aprueban o rechazan una norma sobre el manejo del agua potable.",
+   q:"¿Qué mecanismo describe esta votación?",
+   options:["Referendo","Revocatoria del Mandato","Veeduría","Plebiscito"], correct:0,
+   explain:"Aprobar o rechazar una norma específica mediante votación directa es un Referendo."}
+];
+
+const QUIZ_FINAL = [
+  {case:"Un salón decide sus reglas votando entre todos y respetando a quien piense diferente.",
+   q:"¿Qué forma de gobierno es?", options:["Democracia","Autoritarismo","Monarquía","Anarquía"], correct:0,
+   explain:"Decidir entre todos y respetar a la minoría es propio de la democracia."},
+  {case:"En el colegio, un estudiante siente que no lo dejan participar y busca ayuda con quien defiende los derechos de todos.",
+   q:"¿A quién debería acudir?", options:["Al Personero Estudiantil","Al Contralor Estudiantil","Al Rector únicamente","A la Procuraduría"], correct:0,
+   explain:"El Personero Estudiantil defiende los derechos y la participación de todos los estudiantes."},
+  {case:"Un ciudadano quiere saber cada cuánto se eligen alcaldes, gobernadores, presidente y congresistas.",
+   q:"¿Cada cuántos años se eligen, en general, estos cargos?", options:["4 años","6 años","2 años","10 años"], correct:0,
+   explain:"En Colombia, los cargos de elección popular territoriales y nacionales tienen periodos de 4 años."},
+  {case:"Se descubre que el dinero destinado a una obra pública desapareció.",
+   q:"¿Qué organismo investiga este caso?", options:["La Contraloría (control fiscal)","La Procuraduría (control disciplinario)","El Concejo Municipal","El Personero"], correct:0,
+   explain:"La Contraloría investiga el buen uso del dinero público: es el control fiscal."},
+  {case:"Se descubre que un funcionario no cumplió con sus deberes y actuó de forma irresponsable en su cargo.",
+   q:"¿Qué organismo investiga este caso?", options:["La Procuraduría (control disciplinario)","La Contraloría (control fiscal)","La Veeduría ciudadana","El Cabildo Abierto"], correct:0,
+   explain:"La Procuraduría investiga y sanciona el incumplimiento de deberes de los funcionarios."},
+  {case:"Un grupo de ciudadanos recoge firmas porque su alcalde no ha cumplido nada de lo prometido.",
+   q:"¿Cómo se llama este mecanismo de participación?", options:["Revocatoria del Mandato","Cabildo Abierto","Referendo","Control Fiscal"], correct:0,
+   explain:"Sacar a un gobernante de su cargo mediante firmas ciudadanas es la Revocatoria del Mandato."},
+  {case:"En 1991, Colombia adoptó un nuevo documento que amplió las herramientas de participación ciudadana, más allá de solo votar por representantes.",
+   q:"¿Qué documento es?", options:["La Constitución Política","El Manual de Convivencia","El Código Fiscal","El Plan de Desarrollo"], correct:0,
+   explain:"La Constitución Política de 1991 amplió los mecanismos de participación ciudadana en Colombia."},
+  {case:"Un estudiante comparte una noticia falsa sobre una decisión del colegio y varias familias se confunden por eso.",
+   q:"¿Cómo se llama esta situación?", options:["Desinformación (fake news)","Control disciplinario","Cabildo Abierto","Estado Social de Derecho"], correct:0,
+   explain:"Compartir información falsa que confunde a las personas se llama desinformación."}
+];
+
+/* ============ STATE ============ */
+const completed = {plaza:false, colegio:false, palacio:false, torre:false, casa:false, final:false};
+
+/* ============ RENDER MAP ============ */
+function shuffle(arr){ return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]); }
+
+function renderStamps(){
+  const el = document.getElementById('stamps');
+  el.innerHTML = STATIONS.map(s => `<span class="stamp ${completed[s.id]?'done':''}" title="${s.title}">${completed[s.id]?'✓':''}</span>`).join('');
+}
+
+function renderBoard(){
+  const board = document.getElementById('board');
+  board.innerHTML = STATIONS.map(s => `
+    <button class="station" data-id="${s.id}">
+      <span class="station-icon">${ICONS[s.icon]}</span>
+      <span class="station-text">
+        <span class="station-title">${s.title}</span>
+        <span class="station-desc">${s.desc}</span>
+      </span>
+      <span class="station-mark">${completed[s.id] ? '✓' : ''}</span>
+    </button>
+  `).join('');
+  board.querySelectorAll('.station').forEach(btn=>{
+    btn.addEventListener('click', ()=> openStation(btn.dataset.id));
+  });
+}
+
+function openStation(id){
+  document.getElementById('mapView').classList.add('hidden');
+  document.getElementById('stationView').classList.remove('hidden');
+  const content = document.getElementById('stationContent');
+  if(id==='plaza') buildScenarioStation(content,'plaza','Plaza de la Democracia','Tipos de gobierno y valores democráticos','Lee cada caso y elige la mejor respuesta.', shuffleQuiz(QUIZ_PLAZA));
+  if(id==='colegio') buildMatchingStation(content);
+  if(id==='palacio') buildPalacioStation(content);
+  if(id==='torre') buildSortingStation(content);
+  if(id==='casa') buildCasaStation(content);
+  if(id==='final') buildScenarioStation(content,'final','Meta: repaso final','Un poco de todo lo aprendido en la ciudad','Este repaso mezcla todos los temas de la ciudad.', shuffleQuiz(QUIZ_FINAL));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function shuffleQuiz(list){
+  return shuffle(list).map(item=>{
+    const orderIdx = shuffle(item.options.map((o,i)=>i));
+    return {...item, options:orderIdx.map(i=>item.options[i]), correct: orderIdx.indexOf(item.correct)};
+  });
+}
+
+document.getElementById('backBtn').addEventListener('click', ()=>{
+  document.getElementById('stationView').classList.add('hidden');
+  document.getElementById('mapView').classList.remove('hidden');
+  renderBoard();
+  renderStamps();
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+/* ============ SCENARIO QUIZ ============ */
+function buildScenarioStation(container, id, title, kicker, instructions, items){
+  let idx = 0, score = 0;
+  render();
+  function render(){
+    if(idx >= items.length){ showResult(); return; }
+    const item = items[idx];
+    container.innerHTML = `
+      <p class="kicker">${kicker}</p>
+      <h2>${title}</h2>
+      <p class="instructions">${instructions}</p>
+      <p class="progress-line">Pregunta ${idx+1} de ${items.length} · Aciertos: ${score}</p>
+      <div class="case-box">${item.case}</div>
+      <p class="question-text">${item.q}</p>
+      <div class="options" id="opts"></div>
+    `;
+    const optsEl = container.querySelector('#opts');
+    item.options.forEach((opt, i)=>{
+      const b = document.createElement('button');
+      b.className='option-btn';
+      b.textContent = opt;
+      b.addEventListener('click', ()=>{
+        const buttons = optsEl.querySelectorAll('.option-btn');
+        buttons.forEach(bb=>bb.disabled=true);
+        if(i === item.correct){ b.classList.add('correct'); score++; }
+        else{
+          b.classList.add('incorrect');
+          buttons[item.correct].classList.add('correct');
+        }
+        const explain = document.createElement('div');
+        explain.className='explain';
+        explain.textContent = item.explain;
+        container.querySelector('.options').after(explain);
+        const next = document.createElement('button');
+        next.className='next-btn';
+        next.textContent = (idx === items.length-1) ? 'Ver resultado' : 'Siguiente';
+        next.addEventListener('click', ()=>{ idx++; render(); });
+        explain.after(next);
+      });
+      optsEl.appendChild(b);
+    });
+  }
+  function showResult(){
+    completed[id] = true; renderStamps();
+    container.innerHTML = `
+      <p class="kicker">${kicker}</p>
+      <h2>${title}</h2>
+      <div class="result-box">
+        <div class="result-score">${score} / ${items.length}</div>
+        <p>${score===items.length ? '¡Excelente! Dominas este tema.' : score >= Math.ceil(items.length*0.6) ? '¡Bien hecho! Repasa lo que falló y sigue.' : 'Vale la pena repasar este tema una vez más.'}</p>
+        <button class="primary-btn" id="retryBtn">Intentar de nuevo</button>
+      </div>
+    `;
+    container.querySelector('#retryBtn').addEventListener('click', ()=>{
+      openStation(id);
+    });
+  }
+}
+
+/* ============ MATCHING (COLEGIO) ============ */
+function buildMatchingStation(container){
+  const pairs = MATCH_COLEGIO;
+  const terms = shuffle(pairs.map((p,i)=>({text:p.term, i})));
+  const defs = shuffle(pairs.map((p,i)=>({text:p.def, i})));
+  let selectedTerm = null, matchedCount = 0;
+
+  container.innerHTML = `
+    <p class="kicker">El Colegio</p>
+    <h2>Gobierno escolar: cargos y funciones</h2>
+    <p class="instructions">Toca un cargo y luego toca la función que le corresponde.</p>
+    <p class="progress-line" id="matchProgress">Parejas encontradas: 0 / ${pairs.length}</p>
+    <div class="match-wrap">
+      <div class="match-col" id="termCol"></div>
+      <div class="match-col" id="defCol"></div>
+    </div>
+  `;
+  const termCol = container.querySelector('#termCol');
+  const defCol = container.querySelector('#defCol');
+
+  terms.forEach(t=>{
+    const el = document.createElement('button');
+    el.className='match-item'; el.textContent=t.text; el.dataset.i=t.i;
+    el.addEventListener('click', ()=>{
+      if(el.classList.contains('matched')) return;
+      termCol.querySelectorAll('.match-item').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedTerm = el;
+    });
+    termCol.appendChild(el);
+  });
+  defs.forEach(d=>{
+    const el = document.createElement('button');
+    el.className='match-item'; el.textContent=d.text; el.dataset.i=d.i;
+    el.addEventListener('click', ()=>{
+      if(el.classList.contains('matched') || !selectedTerm) return;
+      if(String(el.dataset.i) === String(selectedTerm.dataset.i)){
+        el.classList.add('matched'); selectedTerm.classList.add('matched');
+        selectedTerm.classList.remove('selected');
+        matchedCount++;
+        container.querySelector('#matchProgress').textContent = `Parejas encontradas: ${matchedCount} / ${pairs.length}`;
+        selectedTerm = null;
+        if(matchedCount === pairs.length){
+          completed.colegio = true; renderStamps();
+          const done = document.createElement('div');
+          done.className='result-box';
+          done.innerHTML = `<p>¡Completaste todas las parejas! 🎉</p><button class="primary-btn" id="retryColegio">Jugar de nuevo</button>`;
+          container.appendChild(done);
+          done.querySelector('#retryColegio').addEventListener('click', ()=> buildMatchingStation(container));
+        }
+      } else {
+        el.classList.add('wrong'); selectedTerm.classList.add('wrong');
+        setTimeout(()=>{ el.classList.remove('wrong'); selectedTerm.classList.remove('wrong','selected'); selectedTerm=null; }, 350);
+      }
+    });
+    defCol.appendChild(el);
+  });
+}
+
+/* ============ PALACIO: ordering + V/F ============ */
+function buildPalacioStation(container){
+  const items = shuffle(ORDER_PALACIO.map((o,i)=>({...o, id:i})));
+  let placed = [];
+
+  render();
+  function render(){
+    container.innerHTML = `
+      <p class="kicker">Palacio de Gobierno</p>
+      <h2>Cargos de elección popular</h2>
+      <p class="instructions">Toca los niveles de gobierno en orden, del más cercano (la escuela) al más amplio (la nación).</p>
+      <div class="order-pool" id="pool"></div>
+      <div class="order-slots" id="slots"></div>
+      <div class="order-feedback" id="orderFeedback"></div>
+    `;
+    const pool = container.querySelector('#pool');
+    const slots = container.querySelector('#slots');
+    for(let i=0;i<ORDER_PALACIO.length;i++){
+      const slot = document.createElement('div');
+      slot.className='order-slot';
+      slot.textContent = placed[i] ? placed[i].label : `Puesto ${i+1}`;
+      if(placed[i]) slot.classList.add('filled');
+      slots.appendChild(slot);
+    }
+    items.forEach(it=>{
+      const chip = document.createElement('button');
+      chip.className='order-chip'; chip.textContent = it.label;
+      if(placed.find(p=>p && p.id===it.id)) chip.disabled = true;
+      chip.addEventListener('click', ()=>{
+        if(placed.length < ORDER_PALACIO.length){
+          placed.push(it); render();
+          if(placed.length === ORDER_PALACIO.length) checkOrder();
+        }
+      });
+      pool.appendChild(chip);
+    });
+  }
+  function checkOrder(){
+    const fb = container.querySelector('#orderFeedback');
+    const correct = placed.every((p,i)=> p.level === i+1);
+    if(correct){
+      fb.style.color='var(--good)';
+      fb.textContent = '¡Orden correcto! De la escuela a la nación, el poder se organiza en escalones.';
+      setTimeout(()=> startVF(container), 1400);
+    } else {
+      fb.style.color='var(--bad)';
+      fb.textContent = 'Ese orden no es correcto. Vuelve a intentarlo.';
+      setTimeout(()=>{ placed=[]; render(); }, 1300);
+    }
+  }
+}
+
+function startVF(container){
+  const items = shuffle(VF_PALACIO);
+  let idx = 0, score = 0;
+  render();
+  function render(){
+    if(idx >= items.length){ finish(); return; }
+    const item = items[idx];
+    container.innerHTML = `
+      <p class="kicker">Palacio de Gobierno</p>
+      <h2>Verdadero o falso</h2>
+      <p class="progress-line">Afirmación ${idx+1} de ${items.length} · Aciertos: ${score}</p>
+      <div class="case-box">${item.text}</div>
+      <div class="options" id="vfOpts">
+        <button class="option-btn" data-v="true">Verdadero</button>
+        <button class="option-btn" data-v="false">Falso</button>
+      </div>
+    `;
+    container.querySelectorAll('#vfOpts .option-btn').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const val = b.dataset.v === 'true';
+        container.querySelectorAll('#vfOpts .option-btn').forEach(x=>x.disabled=true);
+        if(val === item.answer){ b.classList.add('correct'); score++; }
+        else{
+          b.classList.add('incorrect');
+          container.querySelectorAll('#vfOpts .option-btn').forEach(x=>{ if((x.dataset.v==='true')===item.answer) x.classList.add('correct'); });
+        }
+        const explain = document.createElement('div');
+        explain.className='explain'; explain.textContent = item.explain;
+        container.querySelector('#vfOpts').after(explain);
+        const next = document.createElement('button');
+        next.className='next-btn';
+        next.textContent = idx===items.length-1 ? 'Ver resultado' : 'Siguiente';
+        next.addEventListener('click', ()=>{ idx++; render(); });
+        explain.after(next);
+      });
+    });
+  }
+  function finish(){
+    completed.palacio = true; renderStamps();
+    container.innerHTML = `
+      <p class="kicker">Palacio de Gobierno</p>
+      <h2>Cargos de elección popular</h2>
+      <div class="result-box">
+        <div class="result-score">${score} / ${items.length}</div>
+        <p>Ya conoces cómo se organizan y controlan los cargos de elección popular.</p>
+        <button class="primary-btn" id="retryPalacio">Volver a empezar</button>
+      </div>
+    `;
+    container.querySelector('#retryPalacio').addEventListener('click', ()=> buildPalacioStation(container));
+  }
+}
+
+/* ============ TORRE: sorting ============ */
+function buildSortingStation(container){
+  const pool = shuffle(SORT_TORRE.items.map((it,i)=>({...it, id:i})));
+  const binState = {}; SORT_TORRE.bins.forEach(b=> binState[b.id]=[]);
+  let placedCount = 0, selected = null;
+
+  render();
+  function render(){
+    container.innerHTML = `
+      <p class="kicker">Torre de Control</p>
+      <h2>Organismos de control del Estado</h2>
+      <p class="instructions">Toca una situación y luego toca el organismo que debe intervenir.</p>
+      <div class="sort-bins" id="bins"></div>
+      <div class="sort-pool" id="sortPool"></div>
+    `;
+    const binsEl = container.querySelector('#bins');
+    SORT_TORRE.bins.forEach(b=>{
+      const div = document.createElement('div');
+      div.className='sort-bin'; div.dataset.bin=b.id;
+      div.innerHTML = `<h4>${b.label}</h4>` + binState[b.id].map(t=>`<div class="placed">${t}</div>`).join('');
+      div.addEventListener('click', ()=>{
+        if(!selected) return;
+        if(selected.bin === b.id){
+          binState[b.id].push(selected.text);
+          pool.splice(pool.findIndex(p=>p.id===selected.id),1);
+          placedCount++; selected=null; render();
+          if(placedCount === SORT_TORRE.items.length) finish();
+        } else {
+          div.classList.add('wrong');
+          setTimeout(()=> div.classList.remove('wrong'), 350);
+        }
+      });
+      binsEl.appendChild(div);
+    });
+    const poolEl = container.querySelector('#sortPool');
+    pool.forEach(it=>{
+      const chip = document.createElement('button');
+      chip.className='sort-chip'; chip.textContent = it.text;
+      chip.addEventListener('click', ()=>{
+        container.querySelectorAll('.sort-chip').forEach(c=>c.classList.remove('selected'));
+        chip.classList.add('selected');
+        selected = it;
+      });
+      poolEl.appendChild(chip);
+    });
+  }
+  function finish(){
+    completed.torre = true; renderStamps();
+    const done = document.createElement('div');
+    done.className='result-box';
+    done.innerHTML = `<p>¡Clasificaste todas las situaciones correctamente! 🕵️</p><button class="primary-btn" id="retryTorre">Jugar de nuevo</button>`;
+    container.appendChild(done);
+    done.querySelector('#retryTorre').addEventListener('click', ()=> buildSortingStation(container));
+  }
+}
+
+/* ============ CASA: flashcards + quiz ============ */
+function buildCasaStation(container){
+  const cards = FLASH_CASA;
+  let idx = 0, flipped = false;
+  render();
+  function render(){
+    container.innerHTML = `
+      <p class="kicker">Casa de la Participación</p>
+      <h2>Mecanismos de participación ciudadana</h2>
+      <p class="instructions">Lee la situación, piensa el nombre del mecanismo y toca la tarjeta para ver la respuesta.</p>
+      <div class="flash-wrap">
+        <div class="flash-card" id="card">${flipped ? `<span class="back-label">${cards[idx].back}</span>` : cards[idx].front}</div>
+        <div class="flash-nav">
+          <button id="prevBtn" ${idx===0?'disabled':''}>← Anterior</button>
+          <span class="flash-count">${idx+1} / ${cards.length}</span>
+          <button id="nextBtn">${idx===cards.length-1 ? 'Practicar' : 'Siguiente →'}</button>
+        </div>
+      </div>
+    `;
+    container.querySelector('#card').addEventListener('click', ()=>{ flipped=!flipped; render(); });
+    container.querySelector('#prevBtn').addEventListener('click', ()=>{ idx=Math.max(0,idx-1); flipped=false; render(); });
+    container.querySelector('#nextBtn').addEventListener('click', ()=>{
+      if(idx===cards.length-1){ buildScenarioStation(container,'casa','Casa de la Participación','Mecanismos de participación ciudadana','Ahora responde estas preguntas con tus propias palabras.', shuffleQuiz(QUIZ_CASA)); }
+      else{ idx++; flipped=false; render(); }
+    });
+  }
+}
+
+/* ============ INIT ============ */
+renderBoard();
+renderStamps();
+</script>
+</body>
+</html>
